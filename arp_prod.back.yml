@@ -1,0 +1,18 @@
+---
+- hosts: arp_prod
+  become: yes
+  become_method: sudo
+  remote_user: ec2-user
+  gather_facts: false
+  tasks:
+   - name: Copy Private keys to one dir
+     shell:  cp /etc/pki/tls/private/*.pem /home/ec2-user/test/ 
+   - name: Change copied file permission
+     shell: chown ec2-user:ec2-user /home/ec2-user/test/*.pem
+- hosts: localhost
+  connection: local
+  remote_user: root
+  gather_facts: false
+  tasks:
+   - name: Execute shell Scripts to copy conf and certs files
+     shell: /root/script_prod.sh

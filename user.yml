@@ -1,0 +1,15 @@
+---
+- hosts: fedone
+  become: yes
+  become_method: sudo
+  remote_user: ec2-user
+  gather_facts: false
+  vars:
+    input1: "{{ }}"
+    input2: "{{ }}"
+  tasks:
+    - name: User Creation
+      user: name="{{item.name}}" shell=/bin/bash createhome=yes state=present  groups=ssh
+      with_items:
+        - { name: '{{input1}}' }
+        - { name: '{{input2}}' }

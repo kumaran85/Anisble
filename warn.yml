@@ -1,0 +1,14 @@
+---
+- hosts: banner
+  become: yes
+  become_method: sudo
+  remote_user: ec2-user
+  tasks:
+#   - name: Change Banner message
+#     copy: src=/root/playbook/issue dest=/etc/issue
+   # - name: Change Banner
+  #    lineinfile: path=/etc/ssh/sshd_config regexp=^#Banner state=absent 
+ #   - name: Add banner line 
+#      lineinfile: path=/etc/ssh/sshd_config line='Banner /etc/issue.net' state=present regexp=EOF
+    - name: Reload service
+      service: name=sshd state=reloaded enabled=yes

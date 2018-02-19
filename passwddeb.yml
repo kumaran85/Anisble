@@ -1,0 +1,28 @@
+---
+- hosts: debian
+  become: yes
+  become_method: sudo
+  remote_user: admin 
+  tasks:
+   - name: user ID creation on Hybra server
+     user: name="{{item.name}}" shell=/bin/bash groups=ssh createhome=yes password=$6$Sa351pJhiN.bBvy2$5rOyeAKe4yEMABQ13aStIr.ZwOLHvBOJKPvs2qynk9JWhKY7HjidNYYObMbkzKLGltNOt3XNJGqZ9gM.TlkQL0 update_password=always
+     with_items:
+       - { name: '310149104'}
+       - { name: '310166053'}
+       - { name: '310294909'}
+       - { name: '310254981'}
+       - { name: '310288217'}
+       - { name: '320009841'}
+        
+   - name: Add user to sudo group
+     lineinfile: path=/etc/sudoers regexp=EOF line="{{item.line}}" state=present backup=yes validate='/usr/sbin/visudo -cf %s'
+     with_items:
+       - { line: '310149104 ALL=(ALL) PASSWD:ALL  '}  
+       - { line: '310166053 ALL=(ALL) PASSWD:ALL  '}
+       - { line: '310294909 ALL=(ALL) PASSWD:ALL  '}
+       - { line: '310254981 ALL=(ALL) PASSWD:ALL  '}
+       - { line: '310288217 ALL=(ALL) PASSWD:ALL  '}
+       - { line: '320009841 ALL=(ALL) PASSWD:ALL  '}
+   - name: SSHD service
+     service: name=sshd state=restarted enabled=yes
+     

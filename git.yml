@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  connection: local
+  remote_user: root
+  tasks:
+   - name: Pull Playbook from git and exe
+     git: repo=https://github.com/kumaran85/cloud.git/yum.yml dest=/
+#   - name: Install it 
+#     shell: ansible-playbook /root/yum.yml
+   

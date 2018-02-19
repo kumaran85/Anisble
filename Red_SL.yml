@@ -1,0 +1,11 @@
+---
+- hosts: route
+  become: yes
+  become_method: su
+  remote_user: ec2-user
+  tasks:
+   - name: Install based on OS Version 
+     file: path=/root/OSasRed state=touch
+     when:
+       - ansible_distribution == "RedHat"
+       - ansible_distribution_major_version == "7"

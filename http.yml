@@ -1,0 +1,16 @@
+---
+- hosts: ssl
+  become: yes
+  become_user: ec2-user
+  become_method: su
+  remote_user: ec2-user
+  tasks:
+   - name: Insert trace enable line
+     lineinfile: path=/etc/httpd/conf/httpd.conf  insertafer=EOF    line='TraceEnable off' state=present backup=no
+     tags: trace
+   - name: Change SSL Version
+     lineinfile: path=/etc/httpd/conf.d/ssl.conf regexp=^SSLProtocol line="SSLProtocol ALL -SSLv2 -SSLv3 " state=present backup=yes
+     tags: ssl_ver
+   - name: Change SSL Version
+     lineinfile: path=/etc/httpd/conf.d/ssl.conf regexp=^SSLCipherSuite line="SSLCipherSuite ECDH+AESGCM:DH+AESGCM:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:RSA+AESGCM:RSA+AES:!aNULL:!MD5:!DSS " state=present backup=yes
+     tags: ssl_cipher

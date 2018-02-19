@@ -1,0 +1,17 @@
+---
+- include: rpm.yml
+- hosts: route
+  tasks: 
+   - name: Install Squid
+     yum: name=squid state=latest
+   - name: whitelist file
+     copy: src=/root/squid.bkp/squid.pre.prod/whitelist.1 dest=/etc/squid/whitelist mode=0644 owner=root group=squid
+   - name: copy conf file
+     copy: src=/root/squid.bkp/squid.prod/auto.conf dest=/etc/squid/squid.conf mode=0644 owner=root group=squid 
+   - name: start squid service
+     systemd: name=squid enabled=yes state=restarted
+   - name: Redirect 80 to 8080
+     shell: iptables -t nat  -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-ports 8080
+   - name: Add Global DNS
+     lineinfile: path=/etc/resolv.conf insertafter=regex regex=^search line="nameserver 8.8.8.8" 
+

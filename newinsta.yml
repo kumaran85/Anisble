@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  become: yes
+  become_method: su
+  remote_user: ec2-user
+  tasks:
+   - name: Create users
+     user: name={{item}} shell=/bin/bash createhome=yes  state=absent
+     with_items:
+      - 'redhat'
+      - 'kumaran'
+     register: hai
+   - debug: var={{shell}}
+  # - name: Add user to ssh group
+    # command: usermod -aG ssh_allow ccuser
+  

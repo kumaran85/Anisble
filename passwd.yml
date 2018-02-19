@@ -1,0 +1,24 @@
+---
+#- import_playbook: newinsta.yml
+- hosts: debian
+  become: yes
+  become_method: sudo
+  remote_user: admin
+  tasks:
+   - name: Password for hybra users
+     user: name={{item.name}} groups=ssh_allow 
+     with_items:
+       - { name: '310149104'}
+       - { name: '310166053'}
+       - { name: '310294909'}
+       - { name: '310254981'}
+       - { name: '310288217'}
+       - { name: '320009841'}
+        
+  # - name: Add user to sudo group
+   #  lineinfile: path=/etc/sudoers regexp=EOF line="ciadmin   ALL=(ALL) PASSWD:ALL " state=present backup=yes validate='/usr/sbin/visudo -cf %s'
+#   - name: Change SSH params
+#     replace: path=/etc/ssh/sshd_config regexp='^PasswordAuthentication no' replace='PasswordAuthentication yes' backup=yes state=present 
+   - name: SSHD service
+     service: name=sshd state=restarted enabled=yes
+     

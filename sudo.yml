@@ -1,0 +1,14 @@
+---
+- import_playbook: user.yml
+- hosts: 
+  become: yes
+  become_method: sudo
+  remote_user: ec2-user
+  gather_facts: false
+  vars:
+   input: "{{ }}"
+  tasks:
+   - name: Add user to sudo group
+     lineinfile: path=/etc/sudoers regexp=EOF line="{{item.line}}" state=present backup=yes validate='/usr/sbin/visudo -cf %s'
+     with_items:
+       - { line: '{{input}} ALL=(ALL) PASSWD:ALL  '}

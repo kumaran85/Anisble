@@ -1,0 +1,38 @@
+---
+- hosts: localhost
+  connection: local
+  become: yes
+  become_method: su
+  vars:
+   - aws_region: eu-west
+   - access_key: 
+   - secret_key: 
+  tasks:
+   - name: Create Cloud Formation Stack
+     cloudformation: stack_name=terra_stack state=yes disable_rollback=true template=/root/template.yaml region="{{aws_region}}" aws_access_key="{{access_key}}" aws_secret_key="{{secret_key}}"
+   - name: Facts on Cloud_formation
+     cloudformation_facts: stack_name=terra_stack  stack_resources=true register=stack_output
+   - name: Add host into Inventory
+     add_host: name={{item.private_ip}}  groups=newec2 
+     with_items: 
+       -  '{{stack_output}}'
+   - name: Wait for EC2 UP
+     wait_for: timeout=120 delay=120  port=22 state=started 
+-  hosts: newec2
+   become: yes
+   become_method: su
+   remote_user: ubuntu   
+   tasks: 
+    - name: Update SSH file
+      lineinfile: path=/etc/ssh/sshd_config regexp=^PasswordAuthentication line="PasswordAuthentication yes" backup=yes
+    - name: Allow ssh_allow group
+      group: name=ssh_allow state=present
+    - name: add Ubuntu user to ssh_allow
+      command: usermod -aG ssh_allow ubuntu
+    - name: User Creation
+      user: name=ccuser createhome=yes shell=/bin/bash groups=ssh_allow
+    - name: Adds AllowGroups 
+      command: echo " AllowGroups ssh_allow " >> /etc/ssh/sshd_config
+    - name: start sshd service
+      systemd: name=sshd state=restarted enabled=yes
+     # - private_ip

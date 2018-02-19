@@ -1,0 +1,24 @@
+#---
+#- hosts: localhost
+#  connection: local
+#  remote_user: root
+#  vars:
+#   give: "{{ }}"
+#  tasks: 
+#   - name: create file
+#     file: path=/home/ec2-user/mesos state=touch
+# #  - name: Print Output of last 
+# #    debug: var=hai
+#  # - name: Include another play
+#   #  include_tasks: /root/playbook/user.yml
+#   - name: ttt
+#     user: name="{{give}}" shell=/bin/bash
+---
+- hosts: localhost
+  connection: local
+  remote_user: root
+  vars_files:
+   - /root/playbook/vars     
+  tasks: 
+    - name: Install making
+      file: path="/root/{{ input}}" state=touch owner="{{rent}}"

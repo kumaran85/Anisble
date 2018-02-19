@@ -1,0 +1,16 @@
+---
+- hosts: pass
+#  connection: local
+#  gather_facts: false
+  remote_user: ec2-user
+  become: yes
+#  become_user: ec2-user
+  become_method: sudo
+#  vars_files:
+ #   - /root/playbook/password
+  tasks:
+    - name: Create user and Generate SSH Key
+      user: name=maipo createhome=yes shell=/bin/bash state=present generate_ssh_key=yes ssh_key_passphrase=""
+    - name: Manage authorized_keys
+      authorized_key: user=maipo manage_dir=no path=/home/maipo/.ssh/authorized_keys state=present key="{{lookup('file', '/home/maipo/.ssh/id_rsa_pub')}}"
+  
