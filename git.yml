@@ -4,7 +4,7 @@
   remote_user: root
   tasks:
    - name: Pull Playbook from git and exe
-     git: repo=https://github.com/kumaran85/cloud.git/yum.yml dest=/
+     git: repo=https://github.com/kumaran85/cloud.git/yum.yml dest=/root/test bare=yes
 #   - name: Install it 
 #     shell: ansible-playbook /root/yum.yml
    
