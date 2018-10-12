@@ -1,9 +1,0 @@
----
-- hosts: localhost
-  remote_user: root
-  tasks:
-   - name: Update all packages
-     yum: name=kernel state=latest update_cache=yes
- #   - name: useradd test
-  #    user: name=ku290295 shell=/bin/bash createhome=yes state=absent
- 
