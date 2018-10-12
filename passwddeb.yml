@@ -1,10 +1,9 @@
 ---
 - hosts: debian
   become: yes
-  become_method: sudo
   remote_user: admin 
   tasks:
-   - name: user ID creation on Hybra server
+   - name: user ID creation on Debian server
      user: name="{{item.name}}" shell=/bin/bash groups=ssh createhome=yes password=$6$Sa351pJhiN.bBvy2$5rOyeAKe4yEMABQ13aStIr.ZwOLHvBOJKPvs2qynk9JWhKY7HjidNYYObMbkzKLGltNOt3XNJGqZ9gM.TlkQL0 update_password=always
      with_items:
        - { name: '310149104'}
@@ -26,3 +25,4 @@
    - name: SSHD service
      service: name=sshd state=restarted enabled=yes
      
+using with ansible 2.6
