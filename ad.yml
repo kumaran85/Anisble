@@ -1,8 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  remote_user: root
-  tasks:
-  vars_prompt:
-   - name: Creariont
-     prompt: "Enter password"
