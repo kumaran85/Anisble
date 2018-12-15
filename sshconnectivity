@@ -1,0 +1,17 @@
+This methos will be used in ansible 2.3 onwards
+Ansible SSH method
+Using private key and path in ansible.cfg file private_key = /home/ku290295/non-prod.pem
+Use become and remote_user as ec2-user to exec playbooks
+Second method as using root or sudo privileges
+Give sudo user without password in sudoers file.
+Then in playbook use become and remote_user as sudo user name for instance below
+---
+- hosts: new
+  become: yes
+  remote_user: kumaran
+  tasks: 
+   - name: make one dir
+     shell: mkdir /welcome
+     
+  Execute as ansible-playbook  test.yml -k (Enter sudo user password)   
+  
