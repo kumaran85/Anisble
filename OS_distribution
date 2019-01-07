@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  connection: local
+  remote_user: root
+  tasks:
+   - name: Install based on OS Version
+     file: path=/root/OSasRed state=touch
+     when:
+       - ansible_distribution == "RedHat"
+       - ansible_distribution_major_version == "7"
