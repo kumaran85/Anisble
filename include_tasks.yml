@@ -1,0 +1,15 @@
+---
+- hosts: localhost
+  connection: local
+  tasks:
+   - name: install
+     user: name={{item}} shell=/bin/bash state=present
+     loop:
+      - philips
+   - include_tasks: "file.yml"
+   
+#This is file.yml
+- name: Create file
+     file: path=/home/ku290295/import state=touch
+     
+     
