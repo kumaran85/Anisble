@@ -1,0 +1,12 @@
+- hosts: tera
+  become: yes
+  remote_user: ec2-user
+  gather_facts: false
+  vars:
+   input: "{{ }}"
+  tasks:
+   - name: Add user to sudo group
+     lineinfile: path=/etc/sudoers regexp=EOF line="{{item.line}}" state=present backup=yes validate='/usr/sbin/visudo -cf %s'
+     with_items:
+       - { line: '{{input}} ALL=(ALL) PASSWD: ALL '}
+  #giving Root access based on user input     
