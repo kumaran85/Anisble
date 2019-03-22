@@ -15,3 +15,26 @@ Then in playbook use become and remote_user as sudo user name for instance below
      
   Execute as ansible-playbook  test.yml -k (Enter sudo user password)   
   
+  ########################
+  For windows workgroup setup. No need of Linux domain and kinit.
+  First enable winrm service and exec below commands on powershell.
+  winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+  winrm set winrm/config/service/auth '@{Basic="true"}'
+  winrm set winrm/config/client/auth '@{Basic="true"}'
+  netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in localport=5985 protocol=TCP action=allow
+  netsh advfirewall firewall add rule name="WinRM-HTTPS" dir=in localport=5986 protocol=TCP action=allow
+  Test-netConnection <Windows serverIP> -Port 5986
+  copy ansible.ps1 and execute it.
+  
+  And hosts can be added as below
+  [win]
+10.65.10.185
+
+[win:vars]
+ansible_user=administrator
+ansible_ssh_pass=welcome_123
+ansible_port=5985
+ansible_winrm_server_cert_validation=ignore
+ansible_connection=winrm
+
+  
