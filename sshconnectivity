@@ -19,6 +19,7 @@ Then in playbook use become and remote_user as sudo user name for instance below
   For windows workgroup setup. Below verified on ansible 2.7.9
   No need of Linux domain and kinit.
   First enable winrm service and exec below commands on powershell.
+  pip install "pywinrm>=0.3.0"
   winrm set winrm/config/service '@{AllowUnencrypted="true"}'
   winrm set winrm/config/service/auth '@{Basic="true"}'
   winrm set winrm/config/client/auth '@{Basic="true"}'
