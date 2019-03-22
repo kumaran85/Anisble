@@ -1,0 +1,17 @@
+When we try ansible with windows
+cannot import name UnrewindableBodyError
+
+# sudo pip uninstall requests
+
+# sudo pip uninstall urllib3
+
+# sudo yum remove python-urllib3
+
+# sudo yum remove python-requests
+
+# sudo yum install python-urllib3
+
+# sudo yum install python-requests
+
+#################
+ssl: auth method ssl requires a password when using 5986 port 
