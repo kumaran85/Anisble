@@ -1,0 +1,7 @@
+ - name: Untar files
+     unarchive: src=/home/ec2-user/{{item}} dest=/home/ec2-user/
+     loop:
+      - openssl-OpenSSL_1_1_0g.tar.gz
+      - apr-1.6.3.tar.gz
+      - apr-util-1.6.1.tar.gz
+      - httpd-2.4.33.tar.gz
