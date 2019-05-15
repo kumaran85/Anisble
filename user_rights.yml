@@ -1,0 +1,239 @@
+---
+- hosts: win
+  gather_facts: false
+  tasks:
+   - name: Ensure Access Credential Manager as a trusted caller 2.2.1
+     win_user_right: name=SeTrustedCredManAccessPrivilege  users=Administrators action=remove
+     tags:
+      - 2.2.1
+   - name: Ensure Access this computer from the network is set to Administrators, Authenticated Users, ENTERPRISE DOMAIN CONTROLLERS 2.2.2
+     win_user_right: name=SeNetworkLogonRight users={{item}} action=add
+     loop:
+     - Administrators
+     - Authenticated Users
+     tags:
+      - 2.2.2
+
+   - name: Ensure Act as part of the operating system is set to No One
+     win_user_right: name=SeTcbPrivilege action=remove users=Administrators
+     tags:
+      - 2.2.3
+
+   - name: Ensure Add workstations to domain is set to Administrators 2.2.4
+     win_user_right: name=SeMachineAccountPrivilege users=Administrators action=remove
+     tags:
+      - 2.2.4
+
+   - name: Ensure Adjust memory quotas for a process 2.2.5
+     win_user_right: name=SeIncreaseQuotaPrivilege users={{item}} action=add
+     loop:
+       - Administrators
+       - .\LOCAL SERVICE
+       - .\NETWORK SERVCICE
+     tags:
+      - 2.2.5
+
+   - name: Ensure Allow log on locally is set to Administrators Dont use when you have guacamole 2.2.7
+     win_user_right: name=SeInteractiveLogonRight action=add users=Administrators
+     tags:
+       - 2.2.6
+
+   - name: Ensure Allow log on through Remote Desktop Services 2.2.7 Dont add when you have Guacamole
+     win_user_right: name=SeRemoteInteractiveLogonRight action=add users=((item))
+     loop:
+       - Administrators
+       - Remote Desktop Users
+     tags:
+       - 2.2.7
+
+   - name: Ensure backup files and directories seto to admin 2.2.8
+     win_user_right: name=SeBackupPrivilege action=add users=Administrators
+     tags:
+       - 2.2.8
+
+   - name: Ensure Change the system time is set to Administrators, LOCAL SERVICE 2.2.9
+     win_user_right: name=SeSystemtimePrivilege action=add users=((item))
+     loop:
+       - Adminostrators
+       - LOCAL SERVICE
+     tags:
+       - 2.2.9
+
+   - name: Ensure Change the time zone is set to Administrators, LOCAL SERVICE
+     win_user_right: name=SeTimeZonePrivilege action=add users={{item}}
+     loop:
+       - Administrator
+       - LOCAL SERVICE
+     tags:
+       - 2.2.10
+
+   - name: Ensure Create a pagefile is set to Administrators
+     win_user_right: name=SeCreatePagefilePrivilege action=add users=Administrators
+     tags:
+       - 2.2.11
+
+   - name: Ensure Create a token object is set to No One
+     win_user_right: name=SeCreateTokenPrivilege action=remove users=Administrators
+     tags:
+      - 2.2.12
+
+   - name: Ensure Create global objects is set to Administrators, LOCAL SERVICE, NETWORK SERVICE
+     win_user_right: name=SeCreateGlobalPrivilege users={{item}} action=add
+     loop:
+      - Administrators
+      - SERVICE
+      - NETWORK SERVICE
+      - LOCALSERVICE
+     tags:
+      - 2.2.13
+
+   - name: Ensure Create permanent shared objects is set to No One
+     win_user_right: name=SeCreatePermanentPrivilege action=remove users={{item}}
+     loop:
+      - Administrators
+      - Everyone
+     tags:
+      - 2.2.14
+
+   - name: set Configure Create symbolic links
+     win_user_right: name=SeSystemEnvironmentPrivilege users=Administrators action=add
+     tags:
+      - 2.2.15
+
+   - name: Ensure Debug programs is set to Administrators
+     win_user_right: name=SeDebugPrivilege action=add users=Administrators
+     tags:
+      - 2.2.16
+
+   - name:  Configure Deny access to this computer from the network
+     win_user: name=SeDenyNetworkLogonRight action=add users=guests
+     tags:
+      - 2.2.17
+
+   - name: Ensure Deny log on as a batch job to include Guests
+     win_user_right: name=SeDenyBatchLogonRight action=add users=guests
+     tags:
+     - 2.2.18
+
+   - name: Ensure Deny log on as a service for guests
+     win_user_right: name=SeDenyServiceLogonRight action=add users=guests
+     tags:
+      - 2.2.19
+
+   - name: Ensure Deny log on locally to include Guests
+     win_user_right: name=SeDenyInteractiveLogonRight users=guests action=add
+     tags:
+      - 2.2.20
+
+   - name: Ensure Deny log on through Remote Desktop Services to include Guests
+     win_user_right: name=SeDenyRemoteInteractiveLogonRight action=add users=guests
+     tags:
+      - 2.2.21
+
+   - name: Configure Enable computer and user accounts to be trusted for delegation
+     win_user_right: name=SeEnableDelegationPrivilege action=remove users=Administrators
+     tags:
+      - 2.2.22
+
+   - name: Ensure Force shutdown from a remote system is set to Administrators
+     win_user_right: name=SeRemoteShutdownPrivilege action=add users=Administrators
+     tags:
+      - 2.2.23
+
+   - name: Ensure Generate security audits is set to LOCAL SERVICE, NETWORK SERVICE
+     win_user_right: name=SeAuditPrivilege action=add users={{item}}
+     loop:
+       - LOCAL SERVICE
+       - NETWORK SERVICE
+     tags:
+      - 2.2.24
+
+   - name: Configure Impersonate a client after authentication
+     win_user_right: name=SeImpersonatePrivilege action=add users={{item}}
+     loop:
+      - SERVICE
+      - NETWORK SERVICE
+      - LOCAL SERVICE
+      - Administrators
+     tags:
+      - 2.2.25
+   - name: Ensure Increase scheduling priority is set to Administrators
+     win_user_right: name=SeIncreaseBasePriorityPrivilege action=add users=Administrators
+     tags:
+      - 2.2.26
+
+   - name: Ensure Load and unload device drivers is set to Administrators
+     win_user_right: name=SeLoadDriverPrivilege users=Administrators action=add
+     tags:
+      - 2.2.27
+
+   - name: Ensure Lock pages in memory is set to No One Default value
+     win_user_right: name=SeLockMemoryPrivilege actio=remove users=Administrators
+     tags:
+      - 2.2.28
+
+   - name: Ensure Log on as a batch job is set to Administrators
+     win_user_right: name=SeBatchLogonRight action=add users={{item}}
+     loop:
+      - Administrators
+      - Backup Operators
+     tags:
+      - 2.2.29
+
+   - name: Configure Manage auditing and security log
+     win_user_right: name=SeSecurityPrivilege action=add users=Administrators
+     tags:
+      -2.2.30
+
+   - name: Ensure Modify an object label is set to No One default value
+     win_user_right: name=SeRelabelPrivilege actio=remove users=Administrators
+     tags:
+      - 2.2.31
+
+   - name: Ensure Modify firmware environment values is set to Administrators
+     win_user_right: name=SeSystemEnvironmentPrivilege action=add users=Administrators
+     tags:
+      - 2.2.32
+
+   - name: Ensure Perform volume maintenance tasks is set to Administrators
+     win_user_right: name=SeManageVolumePrivilege action=add users=Administrators
+     tags:
+       - 2.2.33
+
+   - name: Ensure Profile single process is set to Administrators
+     win_user_right: name=SeProfileSingleProcessPrivilege action=add users=Administrators
+     tags:
+       - 2.2.34
+
+   - name: Ensure Profile system performance is set to Administrators, NT SERVICE\WdiServiceHost
+     win_user_right: name=SeSystemProfilePrivilege action=add users=Administrators
+     tags:
+      - 2.2.35
+
+   - name: Ensure Replace a process level token is set to LOCAL SERVICE, NETWORK SERVICE
+     win_user_right: name=SeAssignPrimaryTokenPrivilege action=add users={{item}}
+     loop:
+      - LOCAL SERVICE
+      - NETWORK SERVICE
+     tags:
+      - 2.2.36
+
+   - name: Ensure Restore files and directories is set to Administrators
+     win_user_right: name=SeRestorePrivilege action=add users=Administrators
+     tags:
+      - 2.2.37
+
+   - name: Ensure Shut down the system is set to Administrators
+     win_user_right: name=SeShutdownPrivilege action=add users=Administrators
+     tags:
+      - 2.2.38
+
+   - name: Ensure Synchronize directory service data is set to No One default
+     win_user_right: name=SeSyncAgentPrivilege action=remove users=Administrators
+     tags:
+       - 2.2.39
+
+   - name: Ensure Take ownership of files or other objects is set to Administrators
+     win_user_right: name=SeTakeOwnershipPrivilege action=add users=Administrators
+     tags:
+       - 2.2.40
