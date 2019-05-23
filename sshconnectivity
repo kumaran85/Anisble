@@ -1,4 +1,4 @@
-This methos will be used in ansible 2.3 onwards
+This method will be used in ansible 2.3 onwards
 Ansible SSH method
 Using private key and path in ansible.cfg file private_key = /home/ku290295/non-prod.pem
 Use become and remote_user as ec2-user to exec playbooks
@@ -15,8 +15,9 @@ Then in playbook use become and remote_user as sudo user name for instance below
      
   Execute as ansible-playbook  test.yml -k (Enter sudo user password)   
   
-  ########################
+  ####################################################
   For windows workgroup setup. Below verified on ansible 2.7.9
+  ######################################################
   No need of Linux domain and kinit.
   https://www.vgemba.net/ansible/Ansible-WinRM-Workgroup/
   First enable winrm service and exec below commands on powershell.
