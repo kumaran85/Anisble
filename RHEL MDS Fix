@@ -1,0 +1,149 @@
+#
+# MDS Mitigation Playbook v1.1
+#
+# To completely address MDS vulnerabilities, you will need to update your kernel
+# and microcode and disable SMT. However, if you are unable to reboot your system into
+# a new kernel immediately, disabling SMT for the running system will reduce the system's
+# attack surface for these issues.
+#
+# This playbook will disable SMT for the running system, add kernel command line arguments
+# to disable it at boot time, and will find updates to installed kernel or microcode
+# packages. It will not reboot the system, but a reboot will be necessary for mitigation!
+#
+# To verify the state of your system after rebooting, you can inspect the vulnerability
+# file located at /sys/devices/system/cpu/mds , or you can run the detection script
+# available on the "Diagnose" tab of the vulnerability article.
+#
+# To use this playbook, specify the host group or individual hostnames with the "HOSTS"
+# extra var:
+#
+#   ansible-playbook -e HOSTS=web,mail,ldap04 disable_mds_smt_mitigate.yml
+#
+# Additionally, you can set the "FORCEOFF" variable to true to disable runtime onlining
+# of SMT:
+#
+#   ansible-playbook -e HOSTS=hypervisors -e FORCEOFF=true disable_mds_smt_mitigate.yml
+#
+# See https://access.redhat.com/security/vulnerabilities/mds for more information.
+#
+- name: Disable hyperthreading
+  hosts: "{{HOSTS}}"
+  become: true
+  vars:
+    FORCEOFF: false
+    check_updates: []
+    updates_available: []
+    vuln_file_not_vulnerable: false
+    vendor_not_vulnerable: false
+    smt_notsupported: false
+
+  tasks:
+    - when: '"GenuineIntel" not in ([1] | map("extract", ansible_processor) | list)'
+      block:
+        - debug:
+            msg: This system does not appear to have an Intel CPU. Only Intel CPUs are vulnerable to this issue.
+        - set_fact:
+            vendor_not_vulnerable: true
+
+  # Ensure system is up-to-date enough to enable mitigations
+    - name: Check if vuln file is present
+      stat:
+        path: /sys/devices/system/cpu/mds
+      register: mds_stat
+
+    - when: mds_stat.stat.exists
+      block:
+        - slurp:
+            src: /sys/devices/system/cpu/mds
+          register: mds_contents
+
+        - when: '"Not affected" in mds_contents.content|b64decode'
+          block:
+            - debug:
+                msg: This system architecture is not vulnerable.
+            - set_fact:
+                vuln_file_not_vulnerable: true
+
+        - when: '"vulnerable" not in mds_contents.content|b64decode|lower'
+          block:
+            - debug:
+                msg: The vulnerability file does not report this system as being vulnerable.
+            - set_fact:
+                vuln_file_not_vulnerable: true
+
+    # When the system has not been confirmed as not vulnerable:
+    - when: not vuln_file_not_vulnerable and not vendor_not_vulnerable
+      block:
+      # Check for available updates to relevant packages
+      - yum:
+          list: installed
+        register: yum_installed
+
+      - when: item in yum_installed.results|map(attribute='name')|list
+        command: yum check-update {{item}} warn=false
+        register: check_update
+        failed_when: check_update.rc == 1
+        changed_when: false
+        loop:
+          - kernel
+          - kernel-rt
+          - microcode_ctl
+
+      - when: item.rc|default(0) == 100
+        set_fact:
+          updates_available: "{{updates_available + [item.item]}}"
+        loop: "{{check_update.results}}"
+        loop_control:
+          label: "{{item.item}}"
+
+      - name: Detect kernel support for HT control
+        stat:
+          path: /sys/devices/system/cpu/smt/control
+        register: smtcontrol_stat
+
+      - name: Apply available kernel/ucode updates
+        when: updates_available
+        yum:
+          state: latest
+          security: yes
+          name: "{{updates_available}}"
+
+      - when: not smtcontrol_stat.stat.exists
+        fail:
+          msg: This system's kernel is too old to support runtime hyperthread control. Please boot the system with the newest available kernel.
+
+      - slurp:
+          src: /sys/devices/system/cpu/smt/control
+        register: smtcontrol_contents
+
+      - when: '"notsupported\n" == smtcontrol_contents.content|b64decode'
+        block:
+          - debug:
+              msg: "This CPU doesn't support SMT, so disabling it isn't necessary."
+          - set_fact:
+              smt_notsupported: true
+
+      - when: '"on\n" == smtcontrol_contents.content|b64decode'
+        shell: echo "off" > /sys/devices/system/cpu/smt/control
+
+      - name: Disable hyperthreading at boot time (Force off)
+        when: not mds_stat.stat.exists and not smt_notsupported and FORCEOFF
+        command: /sbin/grubby --update-kernel=ALL --args=nosmt=force
+        check_mode: false
+
+      - name: Disable hyperthreading at boot time
+        when: not mds_stat.stat.exists and not smt_notsupported and not FORCEOFF
+        command: /sbin/grubby --update-kernel=ALL --args=nosmt
+        check_mode: false
+
+      - name: Enable MDS full mitigation
+        when: mds_stat.stat.exists and not smt_notsupported and not ansible_distribution_major_version == '6'
+        command: /sbin/grubby --update-kernel=ALL --args=mds=full,nosmt
+
+      - name: Enable MDS full mitigation (Force off)
+        when: mds_stat.stat.exists and not smt_notsupported and FORCEOFF
+        command: /sbin/grubby --update-kernel=ALL --args="mds=full nosmt=force"
+
+      - name: Enable MDS full mitigation (RHEL6)
+        when: mds_stat.stat.exists and not smt_notsupported and ansible_distribution_major_version == '6'
+        command: /sbin/grubby --update-kernel=ALL --args="mds=full nosmt"
