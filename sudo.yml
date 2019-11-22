@@ -12,3 +12,5 @@
      lineinfile: path=/etc/sudoers regexp=EOF line="{{item.line}}" state=present backup=yes validate='/usr/sbin/visudo -cf %s'
      with_items:
        - { line: '{{input}} ALL=(ALL) PASSWD:ALL  '}
+
+###################
