@@ -6,3 +6,4 @@
   tasks:
    - name: Add Global DNS
      lineinfile: path=/etc/resolv.conf insertafter=regex regex=^search line="nameserver 8.8.8.8"
+
