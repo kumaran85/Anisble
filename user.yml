@@ -13,3 +13,5 @@
       with_items:
         - { name: '{{input1}}' }
         - { name: '{{input2}}' }
+
+Ansible before 2.4 I think
